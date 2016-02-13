@@ -11,6 +11,9 @@ import static ua.di1.Test.*;
  */
 public class NodeUtilsTest {
     Node head;
+    private void printChain(){
+        System.out.println(NodeUtils.toString(head));
+    }
 
     @org.junit.Before
     public void setUp() throws Exception {
@@ -20,14 +23,14 @@ public class NodeUtilsTest {
     @org.junit.Test
     public void testAddToHead() throws Exception {
         head = NodeUtils.addToHead(new Node(8,null), head);
-        System.out.println("head = " + NodeUtils.toString(head));
+        printChain();
         checkResult("NodeUtilsTest.testAddToHead", NodeUtils.indexOf(8,head) == 0);
     }
 
     @org.junit.Test
     public void testAddToTail() throws Exception {
         NodeUtils.addToTail(new Node(9,null),head);
-        System.out.println("head = " + NodeUtils.toString(head));
+        printChain();
         checkResult("NodeUtilsTest.testAddToTail", NodeUtils.indexOf(9,head) == 5);
     }
 
@@ -46,21 +49,39 @@ public class NodeUtilsTest {
 
     @org.junit.Test
     public void testInsertByIndex() throws Exception {
-        checkResult("NodeUtilsTest.testInsertByIndex", false);
+        head = NodeUtils.insertByIndex(1, new Node(7, null), head);
+        printChain();
+        checkResult("NodeUtilsTest.testInsertByIndex.1", NodeUtils.indexOf(7, head) == 1);
+
+        head = NodeUtils.insertByIndex(0, new Node(9, null), head);
+        printChain();
+        checkResult("NodeUtilsTest.testInsertByIndex.0", NodeUtils.indexOf(9, head) == 0);
     }
 
     @org.junit.Test
     public void testRemove() throws Exception {
-        checkResult("NodeUtilsTest.testRemove", false);
+        head = NodeUtils.remove(0, head);
+        printChain();
+        checkResult("NodeUtilsTest.testRemove.0", NodeUtils.indexOf(1, head) == -1);
+
+        head = NodeUtils.remove(1, head);
+        printChain();
+        checkResult("NodeUtilsTest.testRemove.1", NodeUtils.indexOf(3, head) == -1);
+
     }
 
     @org.junit.Test
     public void testIndexOf() throws Exception {
-        checkResult("NodeUtilsTest.testIndexOf", false);
+        checkResult("NodeUtilsTest.testIndexOf.first", NodeUtils.indexOf(1,head) == 0);
+        checkResult("NodeUtilsTest.testIndexOf.middle", NodeUtils.indexOf(3,head) == 2);
+        checkResult("NodeUtilsTest.testIndexOf.last", NodeUtils.indexOf(5,head) == 4);
     }
 
     @org.junit.Test
     public void testReverse() throws Exception {
-        checkResult("NodeUtilsTest.testReverse", false);
+        printChain();
+        head = NodeUtils.reverse(head);
+        printChain();
+        checkResult("NodeUtilsTest.testReverse", NodeUtils.indexOf(1, head) == 4);
     }
 }
