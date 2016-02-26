@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import ua.di1.supermarket.animal.Meat;
 
+import java.io.*;
+
 import static org.junit.Assert.*;
 import static ua.di1.Test.checkResult;
 
@@ -24,6 +26,7 @@ public class MeatTest {
 
     @Test
     public void testGetWeight() throws Exception {
+        new BufferedReader(new FileReader(new File("dfg")));
         checkResult("MeatTest.testGetWeight", meat.getWeight() ==  testWeight);
     }
 }
