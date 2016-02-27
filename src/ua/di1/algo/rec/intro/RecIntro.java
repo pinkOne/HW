@@ -6,6 +6,7 @@ package ua.di1.algo.rec.intro;
 public class RecIntro {
 
     public static void main(String[] args) {
+
         int res = fibb(6);
     }
 

@@ -1,6 +1,15 @@
 package ua.di1.week6.day1.io;
 
 
+
+import ua.di1.week6.day1.exceptions.EmptyStreamException;
+import ua.di1.week6.day1.exceptions.EndOfStreamException;
+
+import java.io.CharArrayReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.InputMismatchException;
+
 /**
  * Created by I on 2016-02-25.
  * Написать собственную реализацию класса Scanner, работающую с символьными потоками.
@@ -17,26 +26,27 @@ package ua.di1.week6.day1.io;
  close() - закрытие сканнера, теперь нельзя использовать и NoSuchElementException
  */
 public class Scanner {
-    private String data = "";
-    private int endIndex = -1;
-    private String delimiter = " ";
-    private int delimiterLength = 1;
-    private int pointer = -1;
-    private int delimiterPosition = -1;
+    private char delimiter = ' ';
+    private Reader reader;
+    int buffer = -1;
 
-    public Scanner(String streamingString) throws Exception {
-        if (streamingString.length() < 1) throw new Exception("Stream is empty!");
-        this.data = streamingString;
-        endIndex = data.length();
-        pointer = 0;
+    public Scanner(String streamingString) throws EmptyStreamException {
+        if (streamingString.length() < 1) throw new EmptyStreamException();
+        reader = new CharArrayReader(streamingString.toCharArray());
+        readOne();
     }
 
-    public void useDelimiter(String delimiter) {
+    public Scanner(Reader reader) throws EmptyStreamException {
+        if (reader == null) throw new EmptyStreamException();
+        this.reader = reader;
+        readOne();
+    }
+
+    public void useDelimiter(char delimiter) {
         this.delimiter = delimiter;
-        delimiterLength = delimiter.length();
     }
 
-    public String getDelimiter() {
+    public char getDelimiter() {
         return delimiter;
     }
 
@@ -44,53 +54,67 @@ public class Scanner {
         return getNextPart();
     }
 
-    private int getNextDelimiterPosition(){
-        int tempPosition = data.substring(pointer, endIndex).indexOf(delimiter);
-        if (tempPosition < 0){
-            if (pointer < endIndex) {
-                tempPosition = endIndex;
-            }else{
-                tempPosition = -1;
-            }
+    private void readOne(){
+        try {
+            buffer = reader.read();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        if(tempPosition == 0) {
-            pointer++;
-            return getNextDelimiterPosition();
+        if (buffer == -1) try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return pointer + tempPosition;
     }
+
     private String getNextPart() throws Exception {
-        int tempPosition = getNextDelimiterPosition();
-        if (tempPosition < 0) throw new Exception("Reached the end of the stream!");
-
-        delimiterPosition = tempPosition;
-
-        String result = data.substring(pointer, delimiterPosition);
-        pointer = delimiterPosition + delimiter.length();
-        return result;
+        if (buffer >= 0){
+            StringBuilder stringBuilder = new StringBuilder();
+            while (buffer != -1){
+                //TODO: multychar delimiter
+                if(buffer == delimiter){
+                    if (stringBuilder.length() == 0){
+                        ; // ignore multy delimiter sequences
+                    }else{
+                        return stringBuilder.toString();
+                    }
+                }
+                stringBuilder.append((char)buffer);
+                readOne();
+            }
+            return stringBuilder.toString();
+        }else{
+            throw new EndOfStreamException();
+        }
     }
 
-    public int nextInt() throws Exception {
-        int result = Integer.parseInt(getNextPart());
+    public int nextInt() throws InputMismatchException {
+        int result = 0;
+        try {
+            result = Integer.parseInt(getNextPart());
+        } catch (Exception e) {
+            throw new InputMismatchException(e.getMessage());
+        }
         return result;
     }
 
     public String nextLine() throws Exception {
         String result;
-        String oldDelimiter = getDelimiter();
-        useDelimiter("\n");
+        char oldDelimiter = getDelimiter();
+        //TODO: fix required for multichar separator
+        useDelimiter(System.lineSeparator().charAt(0));
         result = getNextPart();
         useDelimiter(oldDelimiter);
         return result;
     }
 
     public boolean hasNext(){
-        return getNextDelimiterPosition() >= 0;
+        return buffer >= 0;
     }
 
     public boolean hasNextInt(){
         boolean result = false;
-        int tempPosition = getNextDelimiterPosition();
+        int tempPosition = -1;
         if (tempPosition >= 0){
             try {
                 Integer.parseInt(getNextPart());

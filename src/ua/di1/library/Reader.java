@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 /**
  * Created by I on 28.01.2016.
+ *
  */
 public class Reader {
     private String name;

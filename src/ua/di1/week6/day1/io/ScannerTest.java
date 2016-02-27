@@ -3,6 +3,7 @@ package ua.di1.week6.day1.io;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.*;
 import java.util.*;
 import ua.di1.week6.day1.io.Scanner;
 
@@ -14,18 +15,21 @@ import static ua.di1.Test.checkResult;
  */
 public class ScannerTest {
     Scanner scanner;
+    Reader reader;
+    String buffer = "Ще не вм 3 рла України, н1 слава, ні в0л9,\nЩе нам, браття-українці, усміхнеться доля. 111";
 
     @Before
     public void setUp() throws Exception {
-        scanner = new Scanner("Ще не вм 3 рла України, н1 слава, ні в0л9,\nЩе нам, браття-українці, усміхнеться доля. 111");
+        reader = new CharArrayReader(buffer.toCharArray());
+        scanner = new Scanner(reader);
     }
 
     @Test
     public void testUseDelimiter() throws Exception {
-        String oldDelimiter = scanner.getDelimiter();
-        scanner.useDelimiter("|");
-        String newDelimiter = scanner.getDelimiter();;
-        checkResult("testUseDelimiter", ! oldDelimiter.equals(newDelimiter));
+        char oldDelimiter = scanner.getDelimiter();
+        scanner.useDelimiter('|');
+        char newDelimiter = scanner.getDelimiter();;
+        checkResult("testUseDelimiter", oldDelimiter != newDelimiter);
     }
 
     @Test
