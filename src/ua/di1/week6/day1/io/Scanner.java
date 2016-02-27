@@ -8,7 +8,10 @@ import ua.di1.week6.day1.exceptions.EndOfStreamException;
 import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.InputMismatchException;
+import java.util.List;
 
 /**
  * Created by I on 2016-02-25.
@@ -28,7 +31,8 @@ import java.util.InputMismatchException;
 public class Scanner {
     private char delimiter = ' ';
     private Reader reader;
-    int buffer = -1;
+    String buffer = "";
+    List numbers = new ArrayList<>(Arrays.asList(0,1,2,3,4,5,6,7,8,9));
 
     public Scanner(String streamingString) throws EmptyStreamException {
         if (streamingString.length() < 1) throw new EmptyStreamException();
@@ -51,41 +55,45 @@ public class Scanner {
     }
 
     public String next() throws Exception {
-        return getNextPart();
+        String result = buffer;
+        buffer = getNextPart();
+        return result;
     }
 
     private void readOne(){
         try {
-            buffer = reader.read();
+            buffer = getNextPart();
+        } catch (EndOfStreamException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (buffer == -1) try {
+        if (buffer.length() == 0) try {
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private String getNextPart() throws Exception {
-        if (buffer >= 0){
+    private String getNextPart() throws EndOfStreamException, IOException {
             StringBuilder stringBuilder = new StringBuilder();
-            while (buffer != -1){
-                //TODO: multychar delimiter
-                if(buffer == delimiter){
-                    if (stringBuilder.length() == 0){
-                        ; // ignore multy delimiter sequences
-                    }else{
-                        return stringBuilder.toString();
+            int readChar = -1;
+            try {
+                while ((readChar = reader.read()) != -1){
+                    //TODO: multychar delimiter
+                    if(readChar == delimiter){
+                        if (stringBuilder.length() == 0){
+                            ; // ignore multy delimiter sequences
+                        }else{
+                            return stringBuilder.toString();
+                        }
                     }
+                    stringBuilder.append((char)readChar);
                 }
-                stringBuilder.append((char)buffer);
-                readOne();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return stringBuilder.toString();
-        }else{
-            throw new EndOfStreamException();
-        }
     }
 
     public int nextInt() throws InputMismatchException {
@@ -109,20 +117,15 @@ public class Scanner {
     }
 
     public boolean hasNext(){
-        return buffer >= 0;
+        return buffer.length() > 0;
     }
 
     public boolean hasNextInt(){
-        boolean result = false;
-        int tempPosition = -1;
-        if (tempPosition >= 0){
-            try {
-                Integer.parseInt(getNextPart());
-                return true;
-            } catch (Exception e) {
-                return false;
-            }
-        }else{
+        if (buffer.length() == 0) return false;
+        try {
+            numbers.contains(Integer.parseInt(buffer.substring(0,1)));
+            return true;
+        } catch (NumberFormatException e) {
             return false;
         }
     }
